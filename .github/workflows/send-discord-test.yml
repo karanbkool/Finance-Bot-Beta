@@ -1,0 +1,22 @@
+name: Send Discord Test Message
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests jupyter nbconvert nbclient
+
+      - name: Execute test-bot notebook
+        env:
+          DISCORD_FIJI_BOT: ${{ secrets.DISCORD_FIJI_BOT }}
+        run: jupyter nbconvert --to notebook --execute --output test-bot.ipynb test-bot.ipynb
