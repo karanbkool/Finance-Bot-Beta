@@ -1,0 +1,37 @@
+name: Daily Poetry Lines
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_time_check:
+        description: "Post immediately, ignoring the 6:30 AM ET guard (for manual testing)"
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    # 6:30 AM America/New_York during EDT (UTC-4) and EST (UTC-5).
+    # require_6_30_et.py lets only the one matching local time proceed.
+    - cron: "30 10 * * *"
+    - cron: "30 11 * * *"
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Check it's ~6:30 AM ET
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_time_check != true }}
+        run: python3 scripts/require_6_30_et.py
+
+      - name: Post thematic poetry lines
+        env:
+          DISCORD_FIJI_BOT: ${{ secrets.DISCORD_FIJI_BOT }}
+        run: python3 scripts/post_daily_lines.py
