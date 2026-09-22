@@ -28,10 +28,11 @@ jobs:
         run: pip install requests
 
       - name: Check it's ~6:30 AM ET
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_time_check != true }}
+        id: gate
         run: python3 scripts/require_6_30_et.py
 
       - name: Post thematic poetry lines
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.skip_time_check == true) || steps.gate.outputs.should_post == 'true' }}
         env:
           DISCORD_FIJI_BOT: ${{ secrets.DISCORD_FIJI_BOT }}
         run: python3 scripts/post_daily_lines.py
