@@ -1,7 +1,12 @@
 name: Send Discord Test Message
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Message content to post to Discord"
+        required: false
+        default: "hi this is Fiji bot"
 
 jobs:
   run-notebook:
@@ -19,4 +24,5 @@ jobs:
       - name: Execute test-bot notebook
         env:
           DISCORD_FIJI_BOT: ${{ secrets.DISCORD_FIJI_BOT }}
+          MESSAGE: ${{ inputs.message }}
         run: jupyter nbconvert --to notebook --execute --output test-bot.ipynb test-bot.ipynb
